@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "streamer"
+version = "0.1.0"
+description = ""
+authors = ["denver <denverbaumgartner@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+websockets = "^10.4"
+rubi = "^1.0.1"
+python-dotenv = "^0.21.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
