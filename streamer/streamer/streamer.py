@@ -5,11 +5,16 @@ import logging as log
 from web3 import Web3
 from rubi import Rubicon
 from dotenv import load_dotenv
+from readerwriterlock import rwlock
 
 load_dotenv()
 
 # set the environment variable
 node_ws = os.getenv("NODE_WS")
+
+# create the reader writer lock
+# TODO: this is where the most thought should be put into this web socket server, how to handle the concurrency of the incoming data
+rw = rwlock.RWLockWrite()
 
 # error handle if the environment variable is not set
 if node_ws is None:
@@ -41,13 +46,20 @@ async def wob_view():
             parsed = rubi.parse_market_events(data)
 
             if parsed: 
-                book = rubi.get_book(parsed['pay_gem'], parsed['buy_gem'])
-                status = book.stream_update(parsed)
+
+                # use the reader writer lock to prevent multiple threads from accessing the same data
+                with rw.gen_rlock():
+                    book = rubi.get_book(parsed['pay_gem'], parsed['buy_gem'])
+                
+                # use the reader writer lock to prevent multiple threads from attempting to write to the same data
+                with rw.gen_wlock():
+                    status = book.stream_update(parsed)
 
                 if status: 
                     print('processed event:', parsed['event'], 'order id:', parsed['id'])
                 else: 
-                    print('issue processing event:', parsed['event'], 'order id:', parsed['id'])
+                    print('issue processing event:', parsed['event'], 'order id:', parsed['id'], parsed['pay_gem'], parsed['buy_gem'], parsed['pay_amt'], parsed['buy_amt'])
+                    print(book.orders)
 
 asyncio.get_event_loop().run_until_complete(wob_view())
     
