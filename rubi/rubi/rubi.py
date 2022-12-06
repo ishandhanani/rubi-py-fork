@@ -88,7 +88,7 @@ class Rubicon:
         try: 
             parsed = self.market_events[data.params.result.topics[0]](data)
         except Exception as e:
-            log.error(e, exc_info=True)
+            log.info(e, exc_info=True)
             return None
 
         return parsed

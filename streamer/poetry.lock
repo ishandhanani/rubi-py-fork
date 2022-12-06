@@ -853,7 +853,7 @@ tox = ">=3.0.0"
 
 [[package]]
 name = "rubi"
-version = "1.0.1"
+version = "1.0.2"
 description = "a python SDK for the Rubicon Protocol"
 category = "main"
 optional = false
@@ -1060,7 +1060,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "beee1abbc8de5c68fb21934b4f93cd2cc72941a669e3b88e9fe92e9c65c0e627"
+content-hash = "b02b199f5d095c258c5d57e13bfe2b02a80587fe0b6152b731b14e597b8ab636"
 
 [metadata.files]
 aiohttp = [
@@ -1866,8 +1866,8 @@ rootpath = [
     {file = "rootpath-0.1.1.tar.gz", hash = "sha256:ecc3f9de280ff11c6ade0e956229e4dcb74c1ead5efde8579ba721e6459c518f"},
 ]
 rubi = [
-    {file = "rubi-1.0.1-py3-none-any.whl", hash = "sha256:011a9c32d95ee265e8f77cfbf0f7234f972da198c6256c022b211deba202578c"},
-    {file = "rubi-1.0.1.tar.gz", hash = "sha256:d1df2fa74ed9c693d6d3fea78957aa421202ee78e5d5905bccb6882bc19413c8"},
+    {file = "rubi-1.0.2-py3-none-any.whl", hash = "sha256:ec9326971518e4ddf80b83ae9c233bd858faf6cf95eeb3b5f7a72c694d70165e"},
+    {file = "rubi-1.0.2.tar.gz", hash = "sha256:66f7da3c08317a085c9d063157a446a18f8389242f86f80d19f238decb12e97e"},
 ]
 semantic-version = [
     {file = "semantic_version-2.10.0-py2.py3-none-any.whl", hash = "sha256:de78a3b8e0feda74cabc54aab2da702113e33ac9d9eb9d2389bcf1f58b7d9177"},
