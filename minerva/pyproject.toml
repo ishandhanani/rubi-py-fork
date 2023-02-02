@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "minerva"
+version = "0.0.1"
+description = "a market simulator for the decentralized finance ecosystem"
+authors = ["denver <denver@rubicon.finance>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pytest = "^7.2.1"
+rubi = "^1.2.9"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
