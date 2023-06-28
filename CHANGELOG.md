@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v2.2.0 (2023-06-28)
+
+### Feature
+
+* Testing a breaking chnage with some minor changes ([`bed3e5f`](https://github.com/ishandhanani/rubi-py-fork/commit/bed3e5fce367e4bd344531c7d84ebc694a925911))
+
+### Fix
+
+* Changing main to master ([`c4579bd`](https://github.com/ishandhanani/rubi-py-fork/commit/c4579bd412c285a0d16df8fcd94b7afa34ed8a8f))
+
 ## v2.1.1 (2023-06-28)
 
 ### Fix
