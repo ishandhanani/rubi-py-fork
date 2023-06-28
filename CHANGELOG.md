@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.0.1 (2023-06-28)
+
+### Fix
+
+* Trying to auto release ([`38b2790`](https://github.com/ishandhanani/rubi-py-fork/commit/38b279022ce0a72da695562ebb3d0b699ea2cc43))
+
 ## v3.0.0 (2023-06-28)
 
 ### Breaking
