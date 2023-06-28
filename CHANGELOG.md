@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v2.1.1 (2023-06-28)
+
+### Fix
+
+* Pyproject.toml PSR versioning ([`c3a3dbd`](https://github.com/ishandhanani/rubi-py-fork/commit/c3a3dbdb4e61d049b04839fd0ce2aa422f4f02fb))
+
 ## v2.1.0 (2023-06-28)
 ### Feature
 * Cd-flow ([#2](https://github.com/ishandhanani/rubi-py-fork/issues/2)) ([`931d5bd`](https://github.com/ishandhanani/rubi-py-fork/commit/931d5bdee5eabb761c71d4572c31a9574a88b720))
