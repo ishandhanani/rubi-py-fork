@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rubi"
-version = "2.0.4"
+version = "2.1.0"
 description = "A python SDK for the Rubicon Protocol"
 authors = ["denver <denver@rubicon.finance>", "adam <adam@rubicon.finance>"]
 readme = "README.md"
@@ -19,7 +19,7 @@ py-evm = "0.7.0a2"
 eth-utils = "2.1.0"
 subgrounds = { version = "1.6.0", extras = ["dash"] }
 pyyaml = "6.0.0"
-python-semantic-release = "^7.34.6"
+python-semantic-release = "7.28.0"
 
 [tool.poetry.group.dev.dependencies]
 python-dotenv = "0.21.1"
@@ -40,7 +40,7 @@ generate_coverage_report = "scripts:test_coverage_html"
 
 [tool.semantic_release]
 version_toml = "pyproject.toml:tool.poetry.version" # version location
-branch = "main"                             # branch to make releases of
+branch = "master"                             # branch to make releases of
 changelog_file = "../CHANGELOG.md"             # changelog file
 build_command = "poetry build"              # build dists
 dist_path = "dist/"                         # where to put dists
