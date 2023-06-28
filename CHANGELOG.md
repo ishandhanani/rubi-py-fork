@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.0.0 (2023-06-28)
+
+### Breaking
+
+* breaking change test to bump to v3 ([`3f9a1a5`](https://github.com/ishandhanani/rubi-py-fork/commit/3f9a1a57e17fa3578c518d2a4a5aa690ecc11f51))
+
 ## v2.2.0 (2023-06-28)
 
 ### Feature
