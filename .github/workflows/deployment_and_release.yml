@@ -47,7 +47,8 @@ jobs:
       # Test install from Test PyPi
       - name: Test install from Test PyPi
         run: |
-          pip install -i https://test.pypi.org/simple/ rubi
+          poetry config repositories.test https://test.pypi.org/simple/
+          poetry add rubi
       
 
 
