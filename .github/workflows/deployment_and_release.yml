@@ -48,6 +48,7 @@ jobs:
       - name: Test install from Test PyPi
         run: |
           cd rubi
+          poetry env use python3.10
           poetry config repositories.test https://test.pypi.org/simple/
           poetry add rubi
       
