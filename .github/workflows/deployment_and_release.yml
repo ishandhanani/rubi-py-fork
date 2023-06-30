@@ -36,8 +36,22 @@ jobs:
           poetry run semantic-release publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
-      # the semantic-release publish creates the github release
-      # test pypi deployment
+      # Deploy to Test PYPI
+      - name: Test PyPi deployment
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: ${{ secrets.TEST_PYPI_Key }}
+          passwork: ${{ secrets.TEST_PYPI_USER }}
+          repository_url: https://test.pypi.org/legacy/
+      # Test install from Test PyPi
+      - name: Test install from Test PyPi
+          run: |
+            pip install \
+            --index-url https://test.pypi.org/simple/ \
+            --extra-index-url https://pypi.org/single \
+            rubi
+      
+          
 
 
 
