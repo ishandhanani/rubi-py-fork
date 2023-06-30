@@ -29,13 +29,13 @@ jobs:
           cd rubi
           poetry install
       - name: Prepare GH release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   
         run: |
           cd rubi
           git config user.name github-actions
           git config user.email github-actions@github.com
           poetry run semantic-release publish
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
       # Deploy to Test PYPI
       - name: Test PyPi deployment
         uses: pypa/gh-action-pypi-publish@release/v1
@@ -45,11 +45,11 @@ jobs:
           repository_url: https://test.pypi.org/legacy/
       # Test install from Test PyPi
       - name: Test install from Test PyPi
-          run: |
-            pip install \
-            --index-url https://test.pypi.org/simple/ \
-            --extra-index-url https://pypi.org/single \
-            rubi
+        run: |
+          pip install \
+          --index-url https://test.pypi.org/simple/ \
+          --extra-index-url https://pypi.org/single \
+          rubi
       
           
 
