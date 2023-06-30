@@ -44,7 +44,7 @@ jobs:
           user: ${{ secrets.TEST_PYPI_Key }}
           password: ${{ secrets.TEST_PYPI_USER }}
           repository_url: https://test.pypi.org/legacy/
-          packages_dir: ../rubi/dist
+          packages_dir: ./rubi/dist
       # Test install from Test PyPi
       - name: Test install from Test PyPi
         run: |
