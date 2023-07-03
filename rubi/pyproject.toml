@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rubi"
-version = "3.0.26"
+version = "3.0.27"
 description = "A python SDK for the Rubicon Protocol"
 authors = ["denver <denver@rubicon.finance>", "adam <adam@rubicon.finance>"]
 readme = "README.md"
@@ -44,7 +44,7 @@ version_toml = "pyproject.toml:tool.poetry.version"     # version location
 branch = "master"                                       # branch to make releases of
 changelog_file = "../CHANGELOG.md"                      # changelog file
 build_command = "poetry build"                          # build dists
-dist_path = "../dist/"                                     # where to put dists
+dist_path = "../dist/"                                  # where to put dists
 upload_to_release = true                                # auto-create GitHub release
 upload_to_pypi = false                                  # don't auto-upload to PyPI
 remove_dist = false                                     # don't remove dists
