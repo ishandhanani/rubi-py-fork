@@ -48,8 +48,3 @@ upload_to_release = true                                # auto-create GitHub rel
 upload_to_pypi = false                                  # don't auto-upload to PyPI
 remove_dist = false                                     # don't remove dists
 patch_without_tag = true                                # patch release by default
-
-[[tool.poetry.source]]
-name = "test"
-url = "https://test.pypi.org/simple/"
-secondary = true
