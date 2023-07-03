@@ -9,7 +9,7 @@ on:
 jobs:
   release: 
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'  && github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' #&& github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v3
         with:
@@ -44,6 +44,22 @@ jobs:
           password: ${{ secrets.TEST_PYPI_KEY }}
           repository_url: https://test.pypi.org/legacy/
           packages_dir: ./rubi/dist
+  
+  # Goal is to create a completely separate runner and test install rubi from Test PyPi
+  test-install:
+    runs-on: ubuntu-latest
+    needs: release
+    steps:
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+      - name: Install poetry 
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.5.1
+          virtualenvs-create: true
+          virtualenvs-in-project: true
       # Test install from Test PyPi
       - name: Test install from Test PyPi
         run: |
@@ -51,8 +67,6 @@ jobs:
           poetry env use python3.10
           poetry config repositories.test https://test.pypi.org/simple/
           poetry add rubi
-      
-
 
 # the git release needs to happen between the test pypi and the full pypi
 
