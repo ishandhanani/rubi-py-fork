@@ -4738,4 +4738,4 @@ docs = ["sphinx"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "a718c6d5b3a2e6711ac5d1cd345f977877ba9c03e19a1da97f597300d8503731"
+content-hash = "fdd766ed0240ab51ee609b43fab0547c361d4156b4cb663c8594a03ad7c79305"
