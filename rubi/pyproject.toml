@@ -6,13 +6,14 @@ authors = ["denver <denver@rubicon.finance>", "adam <adam@rubicon.finance>"]
 readme = "README.md"
 include = ["network_config/**/*"]
 
+
 [tool.poetry.dependencies]
 python = "^3.10"
 sphinx = "7.0.1"
-web3 = "6.4.0"
+web3 = "6.5.0"
 hexbytes = "0.3.0"
 attributedict = "0.3.0"
-eth-abi = "<=4.0.0"
+eth-abi = "4.0.0"
 pytest = "7.3.1"
 eth-tester = "0.9.0b1"
 py-evm = "0.7.0a2"
@@ -47,4 +48,5 @@ dist_path = "../dist/"                                     # where to put dists
 upload_to_release = true                                # auto-create GitHub release
 upload_to_pypi = false                                  # don't auto-upload to PyPI
 remove_dist = false                                     # don't remove dists
-patch_without_tag = true                                # patch release by default
+patch_without_tag = false                               # patch release by default -> TODO
+version_source = "tag"                                  
