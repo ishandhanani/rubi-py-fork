@@ -3,7 +3,7 @@
 rubi is a python SDK for the Rubicon Protocol and has a variety of functionality for interacting with the protocol.
 Documentation related to rubi and its functionality can be found [here](https://rubi.readthedocs.io/en/latest/#).
 
-### Design Goals
+### Design Goal
 
 The underlying goal of the design of rubi is to provide developers with a seamless integration experience when
 interacting with the Rubicon. The SDK is built with the goal of enabling efficient and reliable communication with
