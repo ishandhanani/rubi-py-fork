@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.2.0 (2023-07-03)
+
+### Feature
+
+* Yaml and pyproj update ([`d9280e5`](https://github.com/ishandhanani/rubi-py-fork/commit/d9280e5de65ddaaf4d1c3d49158e47453307c1df))
+
 ## v3.1.0 (2023-07-03)
 
 
