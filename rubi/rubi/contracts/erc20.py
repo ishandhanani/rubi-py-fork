@@ -32,15 +32,10 @@ class ERC20(BaseContract):
         w3: Web3,
         contract: Contract,
         wallet: Optional[ChecksumAddress] = None,
-        key: Optional[str] = None
+        key: Optional[str] = None,
     ):
         """constructor method"""
-        super().__init__(
-            w3=w3,
-            contract=contract,
-            wallet=wallet,
-            key=key
-        )
+        super().__init__(w3=w3, contract=contract, wallet=wallet, key=key)
 
         self.name: str = self.name()
         self.symbol: str = self.symbol()
@@ -52,7 +47,7 @@ class ERC20(BaseContract):
         name: str,
         network: Network,
         wallet: Optional[ChecksumAddress] = None,
-        key: Optional[str] = None
+        key: Optional[str] = None,
     ) -> "ERC20":
         """Create an ERC20 instance based on a Network instance and token name.
 
@@ -71,7 +66,9 @@ class ERC20(BaseContract):
         """
 
         if network.token_addresses[name] is None:
-            raise Exception(f"{name} in not a valid token according to the network config.")
+            raise Exception(
+                f"{name} in not a valid token according to the network config."
+            )
 
         abi: ABI
 
@@ -82,14 +79,16 @@ class ERC20(BaseContract):
                 abi = json.load(f)
 
         except FileNotFoundError:
-            raise Exception("ERC20.json abi not found. this file should in the network_config folder")
+            raise Exception(
+                "ERC20.json abi not found. this file should in the network_config folder"
+            )
 
         return cls.from_address_and_abi(
             w3=network.w3,
             address=network.token_addresses[name],
             contract_abi=abi,
             wallet=wallet,
-            key=key
+            key=key,
         )
 
     ######################################################################
@@ -176,7 +175,7 @@ class ERC20(BaseContract):
         nonce: Optional[int] = None,
         gas: int = 100000,
         max_fee_per_gas: Optional[int] = None,
-        max_priority_fee_per_gas: Optional[int] = None
+        max_priority_fee_per_gas: Optional[int] = None,
     ) -> TransactionReceipt:
         """Approves the spender to spend the amount of the erc20 token from the signer's wallet
 
@@ -205,7 +204,7 @@ class ERC20(BaseContract):
             gas=gas,
             nonce=nonce,
             max_fee_per_gas=max_fee_per_gas,
-            max_priority_fee_per_gas=max_priority_fee_per_gas
+            max_priority_fee_per_gas=max_priority_fee_per_gas,
         )
 
     # transfer(recipient (address), amount (uint256)) -> bool
@@ -216,7 +215,7 @@ class ERC20(BaseContract):
         nonce: Optional[int] = None,
         gas: int = 100000,
         max_fee_per_gas: Optional[int] = None,
-        max_priority_fee_per_gas: Optional[int] = None
+        max_priority_fee_per_gas: Optional[int] = None,
     ) -> TransactionReceipt:
         """Transfers the amount of the erc20 token to the recipient
 
@@ -244,7 +243,7 @@ class ERC20(BaseContract):
             gas=gas,
             nonce=nonce,
             max_fee_per_gas=max_fee_per_gas,
-            max_priority_fee_per_gas=max_priority_fee_per_gas
+            max_priority_fee_per_gas=max_priority_fee_per_gas,
         )
 
     # transferFrom(sender (address), recipient (address), amount (uint256)) -> bool
@@ -256,7 +255,7 @@ class ERC20(BaseContract):
         nonce: Optional[int] = None,
         gas: int = 100000,
         max_fee_per_gas: Optional[int] = None,
-        max_priority_fee_per_gas: Optional[int] = None
+        max_priority_fee_per_gas: Optional[int] = None,
     ) -> TransactionReceipt:
         """Transfers the amount of the erc20 token from the sender to the recipient
 
@@ -288,7 +287,7 @@ class ERC20(BaseContract):
             gas=gas,
             nonce=nonce,
             max_fee_per_gas=max_fee_per_gas,
-            max_priority_fee_per_gas=max_priority_fee_per_gas
+            max_priority_fee_per_gas=max_priority_fee_per_gas,
         )
 
     # increaseAllowance(spender (address), addedValue (uint256)) -> bool
@@ -299,7 +298,7 @@ class ERC20(BaseContract):
         nonce: Optional[int] = None,
         gas: int = 100000,
         max_fee_per_gas: Optional[int] = None,
-        max_priority_fee_per_gas: Optional[int] = None
+        max_priority_fee_per_gas: Optional[int] = None,
     ) -> TransactionReceipt:
         """Increases the allowance of the spender by the added_value
 
@@ -321,14 +320,16 @@ class ERC20(BaseContract):
         :return: An object representing the transaction receipt
         :rtype: TransactionReceipt
         """
-        increase_allowance = self.contract.functions.increaseAllowance(spender, added_value)
+        increase_allowance = self.contract.functions.increaseAllowance(
+            spender, added_value
+        )
 
         return self._default_transaction_handler(
             instantiated_contract_function=increase_allowance,
             gas=gas,
             nonce=nonce,
             max_fee_per_gas=max_fee_per_gas,
-            max_priority_fee_per_gas=max_priority_fee_per_gas
+            max_priority_fee_per_gas=max_priority_fee_per_gas,
         )
 
     # decreaseAllowance(spender (address), subtractedValue (uint256)) -> bool
@@ -339,7 +340,7 @@ class ERC20(BaseContract):
         nonce: Optional[int] = None,
         gas: int = 100000,
         max_fee_per_gas: Optional[int] = None,
-        max_priority_fee_per_gas: Optional[int] = None
+        max_priority_fee_per_gas: Optional[int] = None,
     ) -> TransactionReceipt:
         """Decreases the allowance of the spender by the subtracted_value
 
@@ -361,14 +362,16 @@ class ERC20(BaseContract):
         :return: An object representing the transaction receipt
         :rtype: TransactionReceipt
         """
-        decrease_allowance = self.contract.functions.decreaseAllowance(spender, subtracted_value)
+        decrease_allowance = self.contract.functions.decreaseAllowance(
+            spender, subtracted_value
+        )
 
         return self._default_transaction_handler(
             instantiated_contract_function=decrease_allowance,
             gas=gas,
             nonce=nonce,
             max_fee_per_gas=max_fee_per_gas,
-            max_priority_fee_per_gas=max_priority_fee_per_gas
+            max_priority_fee_per_gas=max_priority_fee_per_gas,
         )
 
     ######################################################################
@@ -388,7 +391,7 @@ class ERC20(BaseContract):
         if number == 0:
             return Decimal("0")
         else:
-            return Decimal(number) / Decimal(10 ** self.decimal)
+            return Decimal(number) / Decimal(10**self.decimal)
 
     def to_integer(self, number: Decimal) -> int:
         """Converts a Decimal representation of the token to an integer representation of the token by multiplying the
@@ -403,4 +406,4 @@ class ERC20(BaseContract):
         if number == Decimal("0"):
             return 0
         else:
-            return int(number * (10 ** self.decimal))
+            return int(number * (10**self.decimal))

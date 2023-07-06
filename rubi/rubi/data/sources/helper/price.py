@@ -3,21 +3,22 @@ import requests
 import asyncio
 import aiohttp
 
-class Price: 
+
+class Price:
     """Price helper class"""
 
     def __init__(self):
         """constructor for the price helper class
-        
+
         :param w3: a web3 instance
         :type w3: Web3 object
         """
         self.rate_limit = 1 / 3
         self.next_delay = 0
 
-    def get_coinbase_price(self, pair='ETH-USD', date=None): 
+    def get_coinbase_price(self, pair="ETH-USD", date=None):
         """this function takes a pair and returns the current spot price for the pair from coinbase, if no date is provided
-        
+
         :param pair: the pair to get the price for ('ETH-USD')
         :type pair: str
         :param date: the date to get the price for (YYYY-MM-DD), or converts unix timestamp to date
@@ -27,26 +28,25 @@ class Price:
         """
 
         if date and type(date) == int:
-            query_date = time.strftime('%Y-%m-%d %H:%M:%S')
+            query_date = time.strftime("%Y-%m-%d %H:%M:%S")
 
         if date:
-            url = f'https://api.coinbase.com/v2/prices/{pair}/spot?date={query_date}'
+            url = f"https://api.coinbase.com/v2/prices/{pair}/spot?date={query_date}"
         else:
             date = int(time.time())
-            url = f'https://api.coinbase.com/v2/prices/{pair}/spot'
-        
+            url = f"https://api.coinbase.com/v2/prices/{pair}/spot"
+
         # get the response from the api
         try:
-            response = requests.get(url).json()['data']
-            response['time'] = date
-            response['amount'] = float(response['amount'])
+            response = requests.get(url).json()["data"]
+            response["time"] = date
+            response["amount"] = float(response["amount"])
         except:
             return None
 
         return response
 
-    def get_coinbase_candles(self, start, end, pair='ETH-USD', granularity=60): 
-
+    def get_coinbase_candles(self, start, end, pair="ETH-USD", granularity=60):
         try:
             url = f"https://api.pro.coinbase.com/products/{pair}/candles?granularity={granularity}&start={start}&end={end}"
             response = requests.get(url).json()
@@ -54,9 +54,14 @@ class Price:
         except:
             return None
 
-    def get_defi_llama_price(self, network='ethereum', address='0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', timestamp=None):
+    def get_defi_llama_price(
+        self,
+        network="ethereum",
+        address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        timestamp=None,
+    ):
         """this function takes a network and address and returns the current spot price for the token from defi llama, if no timestamp is provided. if a timestamp is provided, it will return the price at that time.
-        
+
         :param network: the network to get the price for ('ethereum')
         :type network: str
         :param address: the address to get the price for (mainnet weth -> '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2')
@@ -67,62 +72,71 @@ class Price:
         :rtype: dict
         """
 
-        coins = f'{network}:{address}'
+        coins = f"{network}:{address}"
 
-        if timestamp: 
+        if timestamp:
             timestamp = int(timestamp)
-            url = f'https://coins.llama.fi/prices/historical/{timestamp}/{coins}'
+            url = f"https://coins.llama.fi/prices/historical/{timestamp}/{coins}"
         else:
             url = f"https://coins.llama.fi/prices/current/{coins}"
 
         # get the response from the api
         try:
-            response = requests.get(url).json()['coins'][coins]
-        except: 
+            response = requests.get(url).json()["coins"][coins]
+        except:
             return None
 
         # TODO: add in confidence check
-        #if response['confidence'] < 0.9:
+        # if response['confidence'] < 0.9:
         #    return None
-        #else: 
-        return {'base': response['symbol'], 'currency': 'USD', 'amount': response['price'], 'time': response['timestamp']}
+        # else:
+        return {
+            "base": response["symbol"],
+            "currency": "USD",
+            "amount": response["price"],
+            "time": response["timestamp"],
+        }
 
-    async def get_prices(self, pairs, granularities, starts, ends, price_type='open'):
-
+    async def get_prices(self, pairs, granularities, starts, ends, price_type="open"):
         async with aiohttp.ClientSession() as session:
 
             async def get_price(pair, granularity, start, end):
-
                 self.next_delay += self.rate_limit
                 await asyncio.sleep(self.next_delay)
-                
+
                 url = f"https://api.pro.coinbase.com/products/{pair}/candles?granularity={granularity}&start={start}&end={end}"
                 try:
-
-                    async with session.get(url) as resp: 
+                    async with session.get(url) as resp:
                         data = await resp.json()
 
                 except aiohttp.ClientError as e:
                     raise Exception(f"Failed to retrieve data due to client error: {e}")
                 except Exception as e:
-                    raise Exception(f"Failed to retrieve data due to error: {e}. parameters {pair}, {granularity}, {start}, {end}")
-                
+                    raise Exception(
+                        f"Failed to retrieve data due to error: {e}. parameters {pair}, {granularity}, {start}, {end}"
+                    )
+
                 if len(data) == 0:
                     return 0
 
-                if price_type == 'open':
+                if price_type == "open":
                     price = data[0][3]
-                elif price_type == 'high':
+                elif price_type == "high":
                     price = data[0][2]
-                elif price_type == 'low':
+                elif price_type == "low":
                     price = data[0][1]
-                elif price_type == 'close':
+                elif price_type == "close":
                     price = data[0][4]
-                
+
                 return price
-            
-            tasks = [get_price(pair, granularity, start, end) for pair, granularity, start, end in zip(pairs, granularities, starts, ends)]
-            
+
+            tasks = [
+                get_price(pair, granularity, start, end)
+                for pair, granularity, start, end in zip(
+                    pairs, granularities, starts, ends
+                )
+            ]
+
             try:
                 prices = await asyncio.gather(*tasks)
             except Exception as e:
@@ -130,8 +144,7 @@ class Price:
 
             return prices
 
-
-    def retrieve_prices(self, pairs, granularities, timestamps, price_type='open'):
+    def retrieve_prices(self, pairs, granularities, timestamps, price_type="open"):
         """the retrieve_prices function will take in a list of pairs, granularities, and timestamps and return a list of prices for each pair at the specified timestamp. this is done by gathering historical data from coinbase's OHLC historical data api
 
         :param pairs: a list of pairs to retrieve prices for, for example ['ETH-USD', 'ETH-USD', 'ETH-USD']
@@ -151,14 +164,18 @@ class Price:
 
         # ensure that the price type is valid
         # TODO: add in additional pricing strategies based upon the different pricing algorithms
-        if price_type not in ['open', 'high', 'low', 'close']:
-            raise Exception("The price type must be either 'open', 'high', 'low', or 'close'")
-        
+        if price_type not in ["open", "high", "low", "close"]:
+            raise Exception(
+                "The price type must be either 'open', 'high', 'low', or 'close'"
+            )
+
         # check that the lists are the same length, if not, raise an error
         if len(pairs) != len(granularities) or len(pairs) != len(timestamps):
-            raise Exception("The lists of pairs, granularities, starts, and ends must be the same length")
+            raise Exception(
+                "The lists of pairs, granularities, starts, and ends must be the same length"
+            )
 
-        starts = [] 
+        starts = []
         ends = []
 
         # based upon the granularities and timestamps, we need to determine the start and end times for each timestamp in the list
@@ -168,58 +185,62 @@ class Price:
             starts.append(period_start)
             ends.append(period_start)
 
-        try: 
-            try: 
+        try:
+            try:
                 loop = asyncio.get_event_loop()
             except RuntimeError:
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
 
             self.next_delay = 0
-            prices = loop.run_until_complete(self.get_prices(pairs, granularities, starts, ends))
+            prices = loop.run_until_complete(
+                self.get_prices(pairs, granularities, starts, ends)
+            )
 
             return prices
         except Exception as e:
             raise Exception(f"Failed to retrieve prices due to error: {e}")
 
-    async def get_candles_in_range(self, pair, granularity, start, end, price_type='open'):
-
+    async def get_candles_in_range(
+        self, pair, granularity, start, end, price_type="open"
+    ):
         # add a buffer to start and end time to make sure we get all the candles we need
         # TODO: determine if there is any actual need to adding a buffer to the start and end times
-        start = ((start // granularity) * granularity) # - (granularity * 10)
-        end = ((end // granularity) * granularity) # + (granularity * 10)
+        start = (start // granularity) * granularity  # - (granularity * 10)
+        end = (end // granularity) * granularity  # + (granularity * 10)
 
-        price_types = {'open' : 3, 'high' : 2, 'low' : 1, 'close' : 4}
+        price_types = {"open": 3, "high": 2, "low": 1, "close": 4}
         price_format = price_types[price_type]
         price_data = {}
 
-        async with aiohttp.ClientSession() as session: 
+        async with aiohttp.ClientSession() as session:
 
             async def get_price(pair, granulatiry, start, end):
-
                 self.next_delay += self.rate_limit
                 await asyncio.sleep(self.next_delay)
 
                 url = f"https://api.pro.coinbase.com/products/{pair}/candles?granularity={granularity}&start={start}&end={end}"
 
-                try: 
+                try:
                     async with session.get(url) as response:
                         data = await response.json()
                 except aiohttp.ClientError as e:
                     raise Exception(f"Failed to retrieve data due to client error: {e}")
                 except Exception as e:
-                    raise Exception(f"Failed to retrieve data due to error: {e}. parameters {pair}, {granularity}, {start}, {end}")
+                    raise Exception(
+                        f"Failed to retrieve data due to error: {e}. parameters {pair}, {granularity}, {start}, {end}"
+                    )
 
-                if len(data) == 0: 
-                    return 0 
+                if len(data) == 0:
+                    return 0
 
                 for candle in data:
                     price_data[candle[0]] = candle[price_format]
                     # TODO: we will need to error handle for cases where there is no data for a given time period
                     # we will most likely want to depend upon the previous period's data to fill in the gaps
-                        # there are a variety of edge cases that we will need to handle, such as when the previous period is missing data as well
-                        # an example timestamp when there is no minute candle data for eth-usd is 1611929220, 1611929280, 1611929340
-            
+                    # there are a variety of edge cases that we will need to handle, such as when the previous period is missing data as well
+                    # an example timestamp when there is no minute candle data for eth-usd is 1611929220, 1611929280, 1611929340
+
             # seperate the start and end time period into periods composed of 300 candle chunks which are defined by the granularity
             chunks = []
             chunk_size = 300 * granularity
@@ -232,16 +253,21 @@ class Price:
                 current_end_chunk += chunk_size
             chunks.append((current_start_chunk, end))
 
-            tasks = [get_price(pair, granularity, chunk_start, chunk_end) for chunk_start, chunk_end in chunks]
+            tasks = [
+                get_price(pair, granularity, chunk_start, chunk_end)
+                for chunk_start, chunk_end in chunks
+            ]
 
-            try: 
+            try:
                 await asyncio.gather(*tasks)
             except Exception as e:
                 raise Exception(f"Failed to retrieve data due to error: {e}")
-            
+
             return price_data
-    
-    def get_price_in_range(self, start, end, pair='ETH-USD', granularity=60, price_type='open'):
+
+    def get_price_in_range(
+        self, start, end, pair="ETH-USD", granularity=60, price_type="open"
+    ):
         """the get_price_in_range function will return the price of a given pair at a given granularity for a given time period. it does this by collecting coinbase candlestick
         data for the given pair at the given granularity over the range of the start and end times. it then returns a dictionary of prices with the timestamp of the candle start as the key
 
@@ -260,31 +286,41 @@ class Price:
         """
 
         # TODO: there is probably a better way to do this, but for now we need to cover the scenario where a user requests USDC-USD data as coinbase just assumes USDC is USD... i hope they are right
-        if pair == 'USDC-USD':
+        if pair == "USDC-USD":
             price_data = {}
-            #TODO: figure out if there is actually any need to add a buffer to the start and end times
-            start = ((start // granularity) * granularity) # - (granularity * 10)
-            end = ((end // granularity) * granularity) # + (granularity * 10)
+            # TODO: figure out if there is actually any need to add a buffer to the start and end times
+            start = (start // granularity) * granularity  # - (granularity * 10)
+            end = (end // granularity) * granularity  # + (granularity * 10)
             while start <= end:
                 price_data[start] = 1
                 start += granularity
             return price_data
-        
-        try: 
-            try: 
+
+        try:
+            try:
                 loop = asyncio.get_event_loop()
             except RuntimeError:
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
-            
+
             self.next_delay = 0
-            price_data = loop.run_until_complete(self.get_candles_in_range(pair, granularity, start, end, price_type))
+            price_data = loop.run_until_complete(
+                self.get_candles_in_range(pair, granularity, start, end, price_type)
+            )
 
             return price_data
         except Exception as e:
-            raise Exception(f"Failed to retrieve data due to error: {e}")    
+            raise Exception(f"Failed to retrieve data due to error: {e}")
 
-    def txn_dataframe_priced(self, txn_dataframe, timestamp_column, total_fee_usd = True, eth_price = False, l1_fee_usd = False, l2_fee_usd = False): 
+    def txn_dataframe_priced(
+        self,
+        txn_dataframe,
+        timestamp_column,
+        total_fee_usd=True,
+        eth_price=False,
+        l1_fee_usd=False,
+        l2_fee_usd=False,
+    ):
         """the txn_dataframe_priced function will take in a transaction dataframe and return a dataframe with the total fee in usd, the eth price at the time of the transaction, and the l1 and l2 fees in usd
 
         :param txn_dataframe: a dataframe containing the transactions to price
@@ -307,7 +343,7 @@ class Price:
         timestamps = list(txn_dataframe[timestamp_column].unique())
 
         # create an array of "ETH-USD" strings that represent the pair, the array is the same length as the timestamps array
-        pairs = ['ETH-USD'] * len(timestamps)
+        pairs = ["ETH-USD"] * len(timestamps)
         granularities = [60] * len(timestamps)
 
         # from the timestamps and create a dictionary that maps the timestamp to the associated eth price
@@ -315,5 +351,3 @@ class Price:
         eth_price_data = dict(zip(timestamps, eth_prices))
 
         return eth_price_data
-
-    

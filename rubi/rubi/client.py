@@ -13,7 +13,7 @@ from rubi.contracts import (
     RubiconRouter,
     ERC20,
     TransactionReceipt,
-    EmitFeeEvent
+    EmitFeeEvent,
 )
 from rubi.network import (
     Network,
@@ -31,7 +31,7 @@ from rubi.rubicon_types import (
     Transaction,
     BaseNewOrder,
     NewCancelOrder,
-    UpdateLimitOrder
+    UpdateLimitOrder,
 )
 
 
@@ -60,11 +60,17 @@ class Client:
         """constructor method."""
         self.network = network
 
-        self.wallet = self.network.w3.to_checksum_address(wallet) if wallet else wallet  # type: ChecksumAddress |  None
+        self.wallet = (
+            self.network.w3.to_checksum_address(wallet) if wallet else wallet
+        )  # type: ChecksumAddress |  None
         self.key = key  # type: str |  None
 
-        self.market = RubiconMarket.from_network(network=self.network, wallet=self.wallet, key=self.key)
-        self.router = RubiconRouter.from_network(network=self.network, wallet=self.wallet, key=self.key)
+        self.market = RubiconMarket.from_network(
+            network=self.network, wallet=self.wallet, key=self.key
+        )
+        self.router = RubiconRouter.from_network(
+            network=self.network, wallet=self.wallet, key=self.key
+        )
 
         self._pairs: Dict[str, Pair] = {}
 
@@ -96,24 +102,20 @@ class Client:
         """
         network = Network.from_config(
             http_node_url=http_node_url,
-            custom_token_addresses_file=custom_token_addresses_file
+            custom_token_addresses_file=custom_token_addresses_file,
         )
 
-        return cls(
-            network=network,
-            message_queue=message_queue,
-            wallet=wallet,
-            key=key
-        )
+        return cls(network=network, message_queue=message_queue, wallet=wallet, key=key)
 
     ######################################################################
     # pair methods
     ######################################################################
 
     def add_pair(
-        self, pair_name: str,
+        self,
+        pair_name: str,
         base_asset_allowance: Optional[Decimal] = None,
-        quote_asset_allowance: Optional[Decimal] = None
+        quote_asset_allowance: Optional[Decimal] = None,
     ) -> None:
         """Add a Pair to the Client. This method creates a Pair instance and adds it to the Client's internal
         _pairs dictionary. Additionally, this method updates the spender allowance of the Rubicon Market for both
@@ -129,29 +131,41 @@ class Client:
 
         base, quote = pair_name.split("/")
 
-        base_asset = ERC20.from_network(name=base, network=self.network, wallet=self.wallet, key=self.key)
-        quote_asset = ERC20.from_network(name=quote, network=self.network, wallet=self.wallet, key=self.key)
+        base_asset = ERC20.from_network(
+            name=base, network=self.network, wallet=self.wallet, key=self.key
+        )
+        quote_asset = ERC20.from_network(
+            name=quote, network=self.network, wallet=self.wallet, key=self.key
+        )
 
         current_base_asset_allowance = None
         current_quote_asset_allowance = None
 
         if self.wallet is not None and self.key is not None:
             current_base_asset_allowance = base_asset.to_decimal(
-                number=base_asset.allowance(owner=self.wallet, spender=self.market.address)
+                number=base_asset.allowance(
+                    owner=self.wallet, spender=self.market.address
+                )
             )
             current_quote_asset_allowance = quote_asset.to_decimal(
-                number=quote_asset.allowance(owner=self.wallet, spender=self.market.address)
+                number=quote_asset.allowance(
+                    owner=self.wallet, spender=self.market.address
+                )
             )
 
-            if current_base_asset_allowance == Decimal("0") or current_quote_asset_allowance == Decimal("0"):
-                log.warning("allowance for base or quote asset is zero. this may cause issues when placing orders")
+            if current_base_asset_allowance == Decimal(
+                "0"
+            ) or current_quote_asset_allowance == Decimal("0"):
+                log.warning(
+                    "allowance for base or quote asset is zero. this may cause issues when placing orders"
+                )
 
         self._pairs[f"{base}/{quote}"] = Pair(
             name=pair_name,
             base_asset=base_asset,
             quote_asset=quote_asset,
             current_base_asset_allowance=current_base_asset_allowance,
-            current_quote_asset_allowance=current_quote_asset_allowance
+            current_quote_asset_allowance=current_quote_asset_allowance,
         )
 
         # only edit allowance if client has signing rights
@@ -159,7 +173,7 @@ class Client:
             self.update_pair_allowance(
                 pair_name=pair_name,
                 new_base_asset_allowance=base_asset_allowance,
-                new_quote_asset_allowance=quote_asset_allowance
+                new_quote_asset_allowance=quote_asset_allowance,
             )
 
     def get_pairs_list(self) -> List[str]:
@@ -174,7 +188,7 @@ class Client:
         self,
         pair_name: str,
         new_base_asset_allowance: Optional[Decimal] = None,
-        new_quote_asset_allowance: Optional[Decimal] = None
+        new_quote_asset_allowance: Optional[Decimal] = None,
     ) -> None:
         """Update the allowance for the base and quote assets of a pair if the current allowance is different from the
         new allowance. This method also updates the Pair data structure so that the allowance can be read without having
@@ -190,21 +204,31 @@ class Client:
         """
         pair = self.get_pair(pair_name=pair_name)
 
-        if new_base_asset_allowance and pair.current_base_asset_allowance != new_base_asset_allowance:
+        if (
+            new_base_asset_allowance
+            and pair.current_base_asset_allowance != new_base_asset_allowance
+        ):
             self._update_asset_allowance(
                 asset=pair.base_asset,
                 spender=self.market.address,
-                new_allowance=new_base_asset_allowance
+                new_allowance=new_base_asset_allowance,
             )
-            pair.update_base_asset_allowance(new_base_asset_allowance=new_base_asset_allowance)
+            pair.update_base_asset_allowance(
+                new_base_asset_allowance=new_base_asset_allowance
+            )
 
-        if new_quote_asset_allowance and pair.current_base_asset_allowance != new_quote_asset_allowance:
+        if (
+            new_quote_asset_allowance
+            and pair.current_base_asset_allowance != new_quote_asset_allowance
+        ):
             self._update_asset_allowance(
                 asset=pair.quote_asset,
                 spender=self.market.address,
-                new_allowance=new_quote_asset_allowance
+                new_allowance=new_quote_asset_allowance,
             )
-            pair.update_quote_asset_allowance(new_quote_asset_allowance=new_quote_asset_allowance)
+            pair.update_quote_asset_allowance(
+                new_quote_asset_allowance=new_quote_asset_allowance
+            )
 
     def get_pair(self, pair_name: str) -> Pair:
         """Retrieves the Pair object associated with the specified pair name. If the pair does not exist
@@ -236,7 +260,7 @@ class Client:
         self.update_pair_allowance(
             pair_name=pair_name,
             new_base_asset_allowance=Decimal("0"),
-            new_quote_asset_allowance=Decimal("0")
+            new_quote_asset_allowance=Decimal("0"),
         )
 
         del self._pairs[pair_name]
@@ -257,14 +281,13 @@ class Client:
         pair = self.get_pair(pair_name=pair_name)
 
         rubicon_offer_book = self.router.get_book_from_pair(
-            asset=pair.base_asset.address,
-            quote=pair.quote_asset.address
+            asset=pair.base_asset.address, quote=pair.quote_asset.address
         )
 
         return OrderBook.from_rubicon_offer_book(
             offer_book=rubicon_offer_book,
             base_asset=pair.base_asset,
-            quote_asset=pair.quote_asset
+            quote_asset=pair.quote_asset,
         )
 
     def start_orderbook_poller(self, pair_name: str, poll_time: int = 2) -> None:
@@ -281,16 +304,16 @@ class Client:
         """
 
         if self.message_queue is None:
-            raise Exception("orderbook poller is configured to place messages on the message queue. message queue"
-                            "cannot be none")
+            raise Exception(
+                "orderbook poller is configured to place messages on the message queue. message queue"
+                "cannot be none"
+            )
 
         # Check that pair is defined before starting
         pair = self.get_pair(pair_name=pair_name)
 
         thread = Thread(
-            target=self._start_orderbook_poller,
-            args=(pair, poll_time),
-            daemon=True
+            target=self._start_orderbook_poller, args=(pair, poll_time), daemon=True
         )
         thread.start()
 
@@ -313,7 +336,9 @@ class Client:
 
                 self.message_queue.put(order_book)
             except PairDoesNotExistException:
-                log.warning("pair does not exist in client. shutting down orderbook poller")
+                log.warning(
+                    "pair does not exist in client. shutting down orderbook poller"
+                )
                 polling = False
             except Exception as e:
                 log.error(e)
@@ -329,7 +354,7 @@ class Client:
         event_type: Type[BaseEvent],
         filters: Optional[Dict[str, Any]] = None,
         event_handler: Optional[Callable] = None,
-        poll_time: int = 2
+        poll_time: int = 2,
     ) -> None:
         """Starts a background event poller that continuously listens for events of the specified event type
         related to the specified pair. The retrieved events are processed by the event handler and added to the message
@@ -351,26 +376,38 @@ class Client:
         :raises PairDoesNotExistException: If the pair does not exist in the client.
         """
         if self.message_queue is None:
-            raise Exception("event poller is configured to place messages on the message queue. message queue"
-                            "cannot be none")
+            raise Exception(
+                "event poller is configured to place messages on the message queue. message queue"
+                "cannot be none"
+            )
 
         pair = self.get_pair(pair_name)
 
-        argument_filters = event_type.default_filters(
-            bid_identifier=pair.bid_identifier,
-            ask_identifier=pair.ask_identifier,
-            wallet=self.wallet
-        ) if filters is None else filters
+        argument_filters = (
+            event_type.default_filters(
+                bid_identifier=pair.bid_identifier,
+                ask_identifier=pair.ask_identifier,
+                wallet=self.wallet,
+            )
+            if filters is None
+            else filters
+        )
 
-        event_type.get_event_contract(market=self.market, router=self.router).start_event_poller(
+        event_type.get_event_contract(
+            market=self.market, router=self.router
+        ).start_event_poller(
             pair_name=pair_name,
             event_type=event_type,
             argument_filters=argument_filters,
-            event_handler=self._default_event_handler if event_handler is None else event_handler,
-            poll_time=poll_time
+            event_handler=self._default_event_handler
+            if event_handler is None
+            else event_handler,
+            poll_time=poll_time,
         )
 
-    def _default_event_handler(self, pair_name: str, event_type: Type[BaseEvent], event_data: EventData) -> None:
+    def _default_event_handler(
+        self, pair_name: str, event_type: Type[BaseEvent], event_data: EventData
+    ) -> None:
         """The default event handler function used by the event poller. It processes the retrieved events
         and adds the corresponding order events to the message queue of the client.
 
@@ -381,7 +418,9 @@ class Client:
         :param event_data: Data of the retrieved event.
         :type event_data: EventData
         """
-        raw_event = event_type(block_number=event_data["blockNumber"], **event_data["args"])
+        raw_event = event_type(
+            block_number=event_data["blockNumber"], **event_data["args"]
+        )
 
         if raw_event.client_filter(wallet=self.wallet):
             pair = self._pairs.get(pair_name)
@@ -389,7 +428,9 @@ class Client:
             if isinstance(raw_event, EmitFeeEvent):
                 event = FeeEvent.from_event(pair=pair, event=raw_event)
             else:
-                event = OrderEvent.from_event(pair=pair, event=raw_event, wallet=self.wallet)
+                event = OrderEvent.from_event(
+                    pair=pair, event=raw_event, wallet=self.wallet
+                )
 
             self.message_queue.put(event)
 
@@ -421,7 +462,9 @@ class Client:
                     buy_gem=pair.base_asset.address,
                     buy_amt=pair.base_asset.to_integer(order.size),
                     pay_gem=pair.quote_asset.address,
-                    max_fill_amount=pair.quote_asset.to_integer(order.worst_execution_price),
+                    max_fill_amount=pair.quote_asset.to_integer(
+                        order.worst_execution_price
+                    ),
                     **transaction.args(),
                 )
             case OrderSide.SELL:
@@ -429,7 +472,9 @@ class Client:
                     pay_gem=pair.base_asset.address,
                     pay_amt=pair.base_asset.to_integer(order.size),
                     buy_gem=pair.quote_asset.address,
-                    min_fill_amount=pair.quote_asset.to_integer(order.worst_execution_price),
+                    min_fill_amount=pair.quote_asset.to_integer(
+                        order.worst_execution_price
+                    ),
                     **transaction.args(),
                 )
 
@@ -507,14 +552,18 @@ class Client:
 
             match order.order_side:
                 case OrderSide.BUY:
-                    pay_amts.append(pair.quote_asset.to_integer(order.price * order.size))
+                    pay_amts.append(
+                        pair.quote_asset.to_integer(order.price * order.size)
+                    )
                     pay_gems.append(pair.quote_asset.address)
                     buy_amts.append(pair.base_asset.to_integer(order.size))
                     buy_gems.append(pair.base_asset.address)
                 case OrderSide.SELL:
                     pay_amts.append(pair.base_asset.to_integer(order.size))
                     pay_gems.append(pair.base_asset.address)
-                    buy_amts.append(pair.quote_asset.to_integer(order.price * order.size))
+                    buy_amts.append(
+                        pair.quote_asset.to_integer(order.price * order.size)
+                    )
                     buy_gems.append(pair.quote_asset.address)
 
         return self.market.batch_offer(
@@ -547,14 +596,18 @@ class Client:
 
             match order.order_side:
                 case OrderSide.BUY:
-                    pay_amts.append(pair.quote_asset.to_integer(order.price * order.size))
+                    pay_amts.append(
+                        pair.quote_asset.to_integer(order.price * order.size)
+                    )
                     pay_gems.append(pair.quote_asset.address)
                     buy_amts.append(pair.base_asset.to_integer(order.size))
                     buy_gems.append(pair.base_asset.address)
                 case OrderSide.SELL:
                     pay_amts.append(pair.base_asset.to_integer(order.size))
                     pay_gems.append(pair.base_asset.address)
-                    buy_amts.append(pair.quote_asset.to_integer(order.price * order.size))
+                    buy_amts.append(
+                        pair.quote_asset.to_integer(order.price * order.size)
+                    )
                     buy_gems.append(pair.quote_asset.address)
 
         return self.market.batch_requote(
@@ -595,14 +648,11 @@ class Client:
     #  See: https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
     @staticmethod
     def _update_asset_allowance(
-        asset: ERC20,
-        spender: ChecksumAddress,
-        new_allowance: Decimal
+        asset: ERC20, spender: ChecksumAddress, new_allowance: Decimal
     ) -> None:
         log.info(
             asset.approve(
-                spender=spender,
-                amount=asset.to_integer(number=new_allowance)
+                spender=spender, amount=asset.to_integer(number=new_allowance)
             )
         )
 
