@@ -9,7 +9,11 @@ jobs:
   # adding a job that checks label before anythint else is done
   label-check:
     runs-on: ubuntu-latest
-    if: "!contains(github.event.pull_request.labels.*.name, 'skip deployment')"
+    steps: 
+      - name: Check for skip label
+        if: contains(github.event.pull_request.labels.*.name, 'skip deployment')
+        run: exit 1
+        shell: bash
   
   # Build the deploy the latest rubi-py code onto Test PyPi
   test-deployment: 
